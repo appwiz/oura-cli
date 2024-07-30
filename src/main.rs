@@ -10,8 +10,9 @@ use std::process;
 struct Cli {
     start_date: String,
     end_date: String,
+    #[clap(long, default_value = "text")]
+    output_format: String,
 }
-
 #[derive(Default, Serialize, Deserialize)]
 struct CliConfig {
     oura_token: String,
@@ -32,13 +33,14 @@ fn main() {
 
     match get_sleep_score(start_date, end_date, token) {
         Ok(scores) => {
-            let json_scores =
-                serde_json::to_string(&scores).expect("Failed to serialize scores to JSON");
-            println!("{}", json_scores);
-
-            // for (date, score) in scores {
-            //     println!("Date: {}, Sleep score: {}", date, score);
-            // }
+            if args.output_format == "text" {
+                for score in scores {
+                    println!("Date: {}, Sleep score: {}", score["date"], score["score"]);
+                }
+            } else {
+                let json_scores = serde_json::to_string(&scores).expect("Failed to serialize scores to JSON");
+                println!("{}", json_scores);
+            }
         }
         Err(e) => eprintln!("Error fetching sleep score: {}", e),
     }
