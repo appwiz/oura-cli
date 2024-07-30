@@ -1,4 +1,4 @@
-use clap::Parser;
+use clap::{Parser};
 use confy;
 use reqwest::blocking::Client;
 use reqwest::Error;
@@ -7,11 +7,14 @@ use serde_json::json;
 use std::process;
 
 #[derive(Parser)]
+#[command(version, about, long_about = None)]
 struct Cli {
+    #[arg(short, long)]
     start_date: String,
+    #[arg(short, long)]
     end_date: String,
-    #[clap(long, default_value = "text")]
-    output_format: String,
+    #[arg(short, long, default_value = "text")]
+    output_format: String, // text or json
 }
 #[derive(Default, Serialize, Deserialize)]
 struct CliConfig {
