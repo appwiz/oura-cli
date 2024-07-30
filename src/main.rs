@@ -1,9 +1,11 @@
-use std::process;
 use clap::Parser;
+use confy;
 use reqwest::blocking::Client;
 use reqwest::Error;
 use serde::{Deserialize, Serialize};
-use confy;
+use serde_json::json;
+use std::process;
+
 #[derive(Parser)]
 struct Cli {
     start_date: String,
@@ -30,7 +32,8 @@ fn main() {
 
     match get_sleep_score(start_date, end_date, token) {
         Ok(scores) => {
-            let json_scores = serde_json::to_string(&scores).expect("Failed to serialize scores to JSON");
+            let json_scores =
+                serde_json::to_string(&scores).expect("Failed to serialize scores to JSON");
             println!("{}", json_scores);
 
             // for (date, score) in scores {
@@ -56,7 +59,7 @@ fn get_sleep_score(
     start_date: &str,
     end_date: &str,
     token: &str,
-) -> Result<Vec<(String, u32)>, Error> {
+) -> Result<Vec<serde_json::Value>, Error> {
     let url = format!(
         "https://api.ouraring.com/v2/usercollection/daily_sleep?start_date={}&end_date={}",
         start_date, end_date
@@ -69,13 +72,13 @@ fn get_sleep_score(
 
     let sleep_data: SleepData = serde_json::from_str(&response_text).unwrap();
 
-    let mut sleep_scores: Vec<(String, u32)> = sleep_data
+    let mut sleep_scores: Vec<serde_json::Value> = sleep_data
         .data
         .into_iter()
-        .map(|entry| (entry.day, entry.score))
+        .map(|entry| json!({ "date": entry.day, "score": entry.score }))
         .collect();
 
-    sleep_scores.sort_by(|a, b| a.0.cmp(&b.0));
+    sleep_scores.sort_by(|a, b| a["date"].as_str().cmp(&b["date"].as_str()));
 
     Ok(sleep_scores)
 }
