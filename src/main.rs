@@ -30,9 +30,12 @@ fn main() {
 
     match get_sleep_score(start_date, end_date, token) {
         Ok(scores) => {
-            for (date, score) in scores {
-                println!("Date: {}, Sleep score: {}", date, score);
-            }
+            let json_scores = serde_json::to_string(&scores).expect("Failed to serialize scores to JSON");
+            println!("{}", json_scores);
+
+            // for (date, score) in scores {
+            //     println!("Date: {}, Sleep score: {}", date, score);
+            // }
         }
         Err(e) => eprintln!("Error fetching sleep score: {}", e),
     }
