@@ -1,4 +1,4 @@
-use clap::{Parser};
+use clap::{Parser, Subcommand};
 use confy;
 use reqwest::blocking::Client;
 use reqwest::Error;
@@ -9,12 +9,25 @@ use std::process;
 #[derive(Parser)]
 #[command(version, about, long_about = None)]
 struct Cli {
-    #[arg(short, long)]
-    start_date: String,
-    #[arg(short, long)]
-    end_date: String,
-    #[arg(short, long, default_value = "text")]
-    output_format: String, // text or json
+    #[command(subcommand)]
+    command: Option<Commands>,
+}
+#[derive(Subcommand)]
+enum Commands {
+    Configure {
+        #[arg(short, long)]
+        oura_token: String,
+    },
+    Show {
+    },
+    Score {
+        #[arg(short, long)]
+        start_date: String,
+        #[arg(short, long)]
+        end_date: String,
+        #[arg(short, long, default_value = "text")]
+        output_format: String, // text or json
+    }
 }
 #[derive(Default, Serialize, Deserialize)]
 struct CliConfig {
@@ -23,29 +36,42 @@ struct CliConfig {
 
 fn main() {
     let args = Cli::parse();
-    let config: CliConfig = confy::load("oura-cli", None).unwrap();
+    let mut config: CliConfig = confy::load("oura-cli", None).unwrap();
 
-    let start_date = args.start_date.as_str();
-    let end_date = args.end_date.as_str();
-    let token = config.oura_token.as_str();
+    if let Some(command) = args.command {
+        match command {
+            Commands::Configure { oura_token } => {
+                config.oura_token = oura_token;
+                confy::store("oura-cli", None, &config).unwrap();
+                println!("Oura token has been configured.");
+            }
+            Commands::Show {} => {
+                println!("Oura token: {}", config.oura_token);
+            }
+            Commands::Score { start_date, end_date, output_format } => {
+                let token = config.oura_token.as_str();
 
-    if token.is_empty() {
-        eprintln!("Error: Oura token is missing in the configuration.");
-        process::exit(1);
-    }
-
-    match get_sleep_score(start_date, end_date, token) {
-        Ok(scores) => {
-            if args.output_format == "text" {
-                for score in scores {
-                    println!("Date: {}, Sleep score: {}", score["date"], score["score"]);
+                if token.is_empty() {
+                    eprintln!("Error: Oura token is missing in the configuration.");
+                    process::exit(1);
                 }
-            } else {
-                let json_scores = serde_json::to_string(&scores).expect("Failed to serialize scores to JSON");
-                println!("{}", json_scores);
+
+                match get_sleep_score(&start_date, &end_date, token) {
+                    Ok(scores) => {
+                        if output_format == "text" {
+                            for score in scores {
+                                println!("Date: {}, Sleep score: {}", score["date"], score["score"]);
+                            }
+                        } else {
+                            let json_scores = serde_json::to_string(&scores).expect("Failed to serialize scores to JSON");
+                            println!("{}", json_scores);
+                        }
+                    }
+                    Err(e) => eprintln!("Error fetching sleep score: {}", e),
+                }
             }
         }
-        Err(e) => eprintln!("Error fetching sleep score: {}", e),
+        return;
     }
 }
 
