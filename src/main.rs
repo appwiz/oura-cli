@@ -5,7 +5,7 @@ use reqwest::Error;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 use std::process;
-
+use chrono::Local;
 #[derive(Parser)]
 #[command(version, about, long_about = None)]
 struct Cli {
@@ -19,6 +19,8 @@ enum Commands {
         oura_token: String,
     },
     Show {
+    },
+    Latest {
     },
     Score {
         #[arg(short, long)]
@@ -47,6 +49,25 @@ fn main() {
             }
             Commands::Show {} => {
                 println!("Oura token: {}", config.oura_token);
+            }
+            Commands::Latest {} => {
+                let token = config.oura_token.as_str();
+
+                if token.is_empty() {
+                    eprintln!("Error: Oura token is missing in the configuration.");
+                    process::exit(1);
+                }
+
+                let today = Local::now().format("%Y-%m-%d").to_string();
+
+                match get_sleep_score(&today, &today, token) {
+                    Ok(scores) => {
+                        for score in scores {
+                            println!("Date: {}, Sleep score: {}", score["date"], score["score"]);
+                        }
+                    }
+                    Err(e) => eprintln!("Error fetching sleep score: {}", e),
+                }
             }
             Commands::Score { start_date, end_date, output_format } => {
                 let token = config.oura_token.as_str();
