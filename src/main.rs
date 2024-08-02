@@ -36,6 +36,10 @@ struct CliConfig {
     oura_token: String,
 }
 
+fn print_sleep_score_as_csv(date: &str, score: &str) {
+    println!("\"{}\",{}", date, score);
+}
+
 fn main() {
     let args = Cli::parse();
     let mut config: CliConfig = confy::load("oura-cli", None).unwrap();
@@ -63,7 +67,7 @@ fn main() {
                 match get_sleep_score(&today, &today, token) {
                     Ok(scores) => {
                         for score in scores {
-                            println!("Date: {}, Sleep score: {}", score["date"], score["score"]);
+                            print_sleep_score_as_csv(score["date"].as_str().unwrap(), score["score"].to_string().as_str());
                         }
                     }
                     Err(e) => eprintln!("Error fetching sleep score: {}", e),
@@ -81,7 +85,7 @@ fn main() {
                     Ok(scores) => {
                         if output_format == "text" {
                             for score in scores {
-                                println!("Date: {}, Sleep score: {}", score["date"], score["score"]);
+                                print_sleep_score_as_csv(score["date"].as_str().unwrap(), score["score"].to_string().as_str());
                             }
                         } else {
                             let json_scores = serde_json::to_string(&scores).expect("Failed to serialize scores to JSON");
