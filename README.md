@@ -1,4 +1,4 @@
-![build](https://github.com/appwiz/oura-cli/actions/workflows/build.yml/badge.svg)
+![build](https://github.com/appwiz/oura-cli/actions/workflows/rust.yml/badge.svg)
 
 # oura-cli
 Get sleep scores by date from the Oura API.
