@@ -1,4 +1,5 @@
 ![build](https://github.com/appwiz/oura-cli/actions/workflows/rust.yml/badge.svg)
+[![codecov](https://codecov.io/gh/appwiz/oura-cli/branch/main/graph/badge.svg)](https://codecov.io/gh/appwiz/oura-cli)
 
 # oura-cli
 Get sleep scores by date from the Oura API.
