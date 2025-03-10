@@ -11,6 +11,7 @@ Usage: oura-cli [COMMAND]
 Commands:
 configure
 show
+latest     Get today's sleep score
 score
 help       Print this message or the help of the given subcommand(s)
 
@@ -64,8 +65,8 @@ Oura token: EXAMPLETOKEN
 ### Get the sleep score for a specific date range
 ```shell
 % oura-cli score -s "2024-06-01" -e "2024-06-02"
-Date: "2024-06-01", Sleep score: 67
-Date: "2024-06-02", Sleep score: 59
+"2024-06-01",67
+"2024-06-02",59
 ```
 
 ### Get the sleep score for a specific date range in JSON format
@@ -73,3 +74,28 @@ Date: "2024-06-02", Sleep score: 59
 % oura-cli score -s "2024-06-01" -e "2024-06-02" -o json
 [{"date":"2024-06-01","score":67},{"date":"2024-06-02","score":59}]
 ```
+
+## Development
+
+### Testing
+The codebase is fully tested with unit tests and integration tests:
+
+```shell
+# Run all tests
+cargo test
+
+# Run a specific test
+cargo test test_name
+
+# Generate test coverage report
+cargo tarpaulin
+```
+
+### Architecture
+The application uses a modular architecture with:
+- Dependency injection for testability
+- Separation of concerns between API, business logic, and UI
+- Abstraction through traits for mocking external dependencies
+
+### Code Coverage
+The test suite aims for >75% code coverage, focusing on core business logic and error handling paths.
