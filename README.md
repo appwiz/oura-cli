@@ -3,6 +3,45 @@
 # oura-cli
 Get sleep scores by date from the Oura API.
 
+## Development
+
+### Running Tests
+
+This project includes a comprehensive test suite. To run the tests:
+
+```bash
+cargo test
+```
+
+### Code Coverage
+
+To check code coverage, you'll need to install cargo-tarpaulin:
+
+```bash
+cargo install cargo-tarpaulin
+```
+
+Then run:
+
+```bash
+cargo tarpaulin
+```
+
+For a more detailed HTML report:
+
+```bash
+cargo tarpaulin --out Html
+```
+
+This will generate a `tarpaulin-report.html` file in the project root.
+
+### Test Structure
+
+- **Unit Tests**: Tests for individual functions and components
+- **CLI Tests**: Tests for command-line argument parsing
+- **Mock Tests**: Tests using mock API responses
+- **Integration Tests**: Tests for end-to-end functionality
+
 ## Commands
 ```shell
 % oura-cli --help

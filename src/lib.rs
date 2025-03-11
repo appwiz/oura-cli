@@ -84,7 +84,15 @@ pub fn get_sleep_score(
 
     let response_text = response.text()?;
 
-    let sleep_data: SleepData = serde_json::from_str(&response_text).unwrap();
+    // Parse the JSON response
+    let sleep_data: SleepData = match serde_json::from_str(&response_text) {
+        Ok(data) => data,
+        Err(e) => {
+            eprintln!("Error parsing response: {}", e);
+            // Return an empty data structure
+            SleepData { data: vec![] }
+        }
+    };
 
     let mut sleep_scores: Vec<serde_json::Value> = sleep_data
         .data
