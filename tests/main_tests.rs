@@ -1,9 +1,7 @@
 use assert_cmd::Command;
 use predicates::prelude::*;
-use mockito::Server;
 use std::env;
 use std::fs;
-use std::path::PathBuf;
 use tempfile::tempdir;
 
 // Helper function to create a test config file

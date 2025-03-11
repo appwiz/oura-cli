@@ -3,3 +3,8 @@ mod mock_tests;
 mod integration_tests;
 mod main_tests;
 mod unit_tests;
+mod main_direct_tests;
+mod main_direct_coverage;
+mod main_coverage_tests;
+mod main_execution_tests;
+mod main_execution_direct;

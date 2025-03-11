@@ -10,7 +10,14 @@ Get sleep scores by date from the Oura API.
 This project includes a comprehensive test suite. To run the tests:
 
 ```bash
+# Run all tests
 cargo test
+
+# Run a specific test file
+cargo test --test <test_file_name>
+
+# Run a specific test
+cargo test <test_name>
 ```
 
 ### Code Coverage
@@ -24,23 +31,31 @@ cargo install cargo-tarpaulin
 Then run:
 
 ```bash
+# Generate coverage report
 cargo tarpaulin
-```
 
-For a more detailed HTML report:
-
-```bash
+# Generate detailed HTML report
 cargo tarpaulin --out Html
 ```
 
-This will generate a `tarpaulin-report.html` file in the project root.
+This will generate a `tarpaulin-report.html` file in the project root with detailed coverage information.
 
 ### Test Structure
 
-- **Unit Tests**: Tests for individual functions and components
-- **CLI Tests**: Tests for command-line argument parsing
-- **Mock Tests**: Tests using mock API responses
-- **Integration Tests**: Tests for end-to-end functionality
+- **Unit Tests**: Tests for individual functions and components in `src/lib.rs`
+- **CLI Tests**: Tests for command-line argument parsing in `tests/cli_tests.rs`
+- **Mock Tests**: Tests using mock API responses in `tests/mock_tests.rs`
+- **Integration Tests**: Tests for end-to-end functionality in `tests/integration_tests.rs`
+- **Main Tests**: Tests for main.rs functionality in various test files
+
+### Adding New Tests
+
+When adding new tests:
+
+1. Choose the appropriate test file based on what you're testing
+2. Use mock servers for API tests to avoid external dependencies
+3. Run tests with `cargo test` to ensure they pass
+4. Check coverage with `cargo tarpaulin` to identify areas needing more tests
 
 ## Commands
 ```shell

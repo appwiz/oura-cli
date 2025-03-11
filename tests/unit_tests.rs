@@ -1,5 +1,5 @@
 use clap::Parser;
-use oura_cli::{Cli, Commands, CliConfig, SleepData, SleepEntry};
+use oura_cli::{Cli, CliConfig, SleepData, SleepEntry};
 use serde_json::{json, Value};
 use std::io::Cursor;
 
