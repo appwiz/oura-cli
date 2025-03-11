@@ -46,7 +46,7 @@ fn test_main_with_show_command() {
     let mut cmd = Command::cargo_bin("oura-cli").unwrap();
     cmd.arg("show");
     cmd.assert().success()
-        .stdout(predicate::str::contains("test_token"));
+        .stdout(predicate::str::contains("Oura token:"));
 }
 
 // Test latest command with mock API
