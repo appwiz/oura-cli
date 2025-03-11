@@ -1,40 +1,9 @@
 use chrono::Local;
-use clap::{Parser, Subcommand};
+use clap::Parser;
 use confy;
-use reqwest::blocking::Client;
-use reqwest::Error;
-use serde::{Deserialize, Serialize};
-use serde_json::{json, Value};
-use std::process;
-#[derive(Parser)]
-#[command(version, about, long_about = None)]
-struct Cli {
-    #[command(subcommand)]
-    command: Option<Commands>,
-}
-#[derive(Subcommand)]
-enum Commands {
-    Configure {
-        #[arg(short, long)]
-        oura_token: String,
-    },
-    Show {},
-    Latest {},
-    Score {
-        #[arg(short, long)]
-        start_date: String,
-        #[arg(short, long)]
-        end_date: String,
-        #[arg(short, long, default_value = "text")]
-        output_format: String, // text or json
-    },
-}
-#[derive(Default, Serialize, Deserialize)]
-struct CliConfig {
-    oura_token: String,
-}
+use std::io;
 
-const CONFIG_APP_NAME: &'static str = "oura-cli";
+use oura_cli::{Cli, CliConfig, Commands, CONFIG_APP_NAME, get_sleep_score, print_sleep_score_as_csv, print_sleep_score_as_json};
 
 fn main() {
     let args = Cli::parse();
@@ -59,7 +28,8 @@ fn main() {
                             print_sleep_score_as_csv(
                                 score["date"].as_str().unwrap(),
                                 score["score"].to_string().as_str(),
-                            );
+                                &mut io::stdout(),
+                            ).unwrap();
                         }
                     }
                     Err(e) => eprintln!("Error fetching sleep score: {}", e),
@@ -76,10 +46,11 @@ fn main() {
                             print_sleep_score_as_csv(
                                 score["date"].as_str().unwrap(),
                                 score["score"].to_string().as_str(),
-                            );
+                                &mut io::stdout(),
+                            ).unwrap();
                         }
                     } else {
-                        print_sleep_score_as_json(&scores);
+                        print_sleep_score_as_json(&scores, &mut io::stdout()).unwrap();
                     }
                 }
                 Err(e) => eprintln!("Error fetching sleep score: {}", e),
@@ -87,56 +58,4 @@ fn main() {
         }
         return;
     }
-}
-#[derive(Deserialize)]
-struct SleepData {
-    data: Vec<SleepEntry>,
-}
-
-#[derive(Deserialize)]
-struct SleepEntry {
-    day: String,
-    score: u32,
-}
-
-fn print_sleep_score_as_json(scores: &Vec<Value>) {
-    let json_scores = serde_json::to_string(&scores).expect("Failed to serialize scores to JSON");
-    println!("{}", json_scores);
-}
-fn print_sleep_score_as_csv(date: &str, score: &str) {
-    println!("\"{}\",{}", date, score);
-}
-fn get_sleep_score(
-    cli_config: CliConfig,
-    start_date: &str,
-    end_date: &str,
-) -> Result<Vec<serde_json::Value>, Error> {
-    let url = format!(
-        "https://api.ouraring.com/v2/usercollection/daily_sleep?start_date={}&end_date={}",
-        start_date, end_date
-    );
-
-    let token = cli_config.oura_token.as_str();
-
-    if token.is_empty() {
-        eprintln!("Error: Oura token is missing in the configuration.");
-        process::exit(1);
-    }
-
-    let client = Client::new();
-    let response = client.get(&url).bearer_auth(token).send()?;
-
-    let response_text = response.text()?;
-
-    let sleep_data: SleepData = serde_json::from_str(&response_text).unwrap();
-
-    let mut sleep_scores: Vec<serde_json::Value> = sleep_data
-        .data
-        .into_iter()
-        .map(|entry| json!({ "date": entry.day, "score": entry.score }))
-        .collect();
-
-    sleep_scores.sort_by(|a, b| a["date"].as_str().cmp(&b["date"].as_str()));
-
-    Ok(sleep_scores)
 }
